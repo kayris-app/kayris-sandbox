@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kayris&trade; Risk Sandbox | Healthcare Analytics</title>
+    <!-- Premium Clinical Typography -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600;700&family=Inter:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #5E805B;
+            /* Muted Olive Green */
+            --primary-dark: #4a6647;
+            --text-main: #1E1E1E;
+            /* Dark Charcoal */
+            --text-muted: #666666;
+            --bg-page: #f9fafb;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            --font-serif: 'EB Garamond', serif;
+            --font-sans: 'Inter', sans-serif;
+            --risk-low: #5E805B;
+            --risk-borderline: #7c9a79;
+            --risk-intermediate: #f59e0b;
+            --risk-high: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            background: white;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-box {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+
+        .logo-img {
+            height: 40px;
+            width: auto;
+        }
+
+        .logo-text {
+            font-family: var(--font-serif);
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-link {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1px solid var(--primary);
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+
+        .nav-link:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .hero h1 {
+            font-family: var(--font-serif);
+            font-size: 3.2rem;
+            margin: 0;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            font-size: 1.15rem;
+            max-width: 750px;
+            margin: 15px auto 0;
+            line-height: 1.6;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 1050px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 35px;
+            box-shadow: var(--shadow);
+            height: fit-content;
+        }
+
+        h2 {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            margin-top: 0;
+            margin-bottom: 25px;
+            color: var(--text-main);
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
+        .disclaimer-box {
+            background: #fff8e1;
+            border: 1px solid #ffecb3;
+            color: #856404;
+            padding: 15px 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: 0 auto 30px;
+            max-width: 800px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .section-header {
+            font-family: var(--font-serif);
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            text-align: center;
+            background: white;
+            padding: 10px 0;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(94, 128, 91, 0.05);
+            border: 1px solid var(--border);
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 8px;
+            height: 100%;
+        }
+
+        label {
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        input,
+        select {
+            background: #fff;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 12px 14px;
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            font-size: 1rem;
+            transition: 0.2s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(94, 128, 91, 0.1);
+        }
+
+        /* Results Display */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 15px 25px;
+            align-items: center;
+            /* Vertical Centering */
+        }
+
+        @media (max-width: 600px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+        }
+
+        .outcome-header {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        .result-item {
+            padding: 20px;
+            border-radius: 12px;
+            background: #f8faf9;
+            border: 1px solid #e9efeb;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+        }
+
+        .result-item.featured {
+            background: #f1f5f2;
+            border: 2px solid var(--primary);
+            box-shadow: 0 4px 15px rgba(94, 128, 91, 0.08);
+        }
+
+        .result-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .featured .result-label {
+            color: var(--text-main);
+        }
+
+        .result-value {
+            font-family: var(--font-serif);
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Scaled Font Sizes */
+        .ten-year .result-value {
+            font-size: 1.7rem;
+        }
+
+        .ten-year.featured .result-value {
+            font-size: 2.8rem;
+        }
+
+        .comp-col .result-value {
+            font-size: 1.3rem;
+            color: var(--text-muted);
+        }
+
+        .comp-col.featured .result-value {
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+
+        .result-assessment {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .featured .result-assessment {
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+
+        .badge {
+            font-size: 0.7rem;
+            padding: 6px 14px;
+            border-radius: 30px;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .badge.prevent {
+            background: #5E805B;
+            color: white;
+        }
+
+        .badge.pce {
+            background: #1E1E1E;
+            color: white;
+        }
+
+        .dm-section {
+            margin-top: 50px;
+            border-top: 1px solid var(--border);
+            padding-top: 50px;
+            text-align: center;
+        }
+
+        .diab-box {
+            display: inline-block;
+            min-width: 340px;
+            padding: 40px;
+            background: #f1f5f9;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .diab-tag {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .diab-score-row {
+            display: flex;
+            justify-content: center;
+            align-items: baseline;
+            gap: 10px;
+            margin: 5px 0;
+        }
+
+        .diab-value {
+            font-size: 4.8rem;
+            font-family: var(--font-serif);
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1;
+        }
+
+        .diab-denom {
+            font-size: 1.8rem;
+            color: var(--text-muted);
+            font-family: var(--font-serif);
+        }
+
+        .diab-assessment {
+            font-weight: 800;
+            font-size: 1.5rem;
+            margin-top: 15px;
+            text-transform: uppercase;
+        }
+
+        .footer {
+            margin: 80px auto 40px;
+            text-align: left;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            line-height: 1.8;
+            padding-top: 30px;
+            border-top: 1px solid var(--border);
+        }
+
+        .acronym-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 10px;
+            font-size: 0.75rem;
+            opacity: 0.8;
+            margin-top: 20px;
+        }
+
+        .footer p {
+            max-width: none;
+            margin-left: 0;
+            margin-right: 0;
+            text-align: left;
+        }
+
+        .footer .disclaimer-box {
+            max-width: none;
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .action-plan {
+            margin-top: 40px;
+            border-top: 1px solid var(--border);
+            padding-top: 30px;
+        }
+
+        .action-plan-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 20px;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .action-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .action-card h3 {
+            font-size: 1.1rem;
+            color: var(--text-main);
+            margin: 0 0 8px 0;
+        }
+
+        .action-card p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin: 0 0 15px 0;
+            line-height: 1.5;
+        }
+
+        .action-card ul {
+            font-size: 0.85rem;
+            color: var(--text-main);
+            margin: 0 0 20px 0;
+            padding-left: 20px;
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+
+        .action-card li {
+            margin-bottom: 6px;
+        }
+
+        .action-link {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #2563eb;
+            text-decoration: none;
+            margin-top: auto;
+        }
+
+        .action-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="top-nav">
+        <a href="https://healthcareanalytics.com" class="logo-box">
+            <img src="https://healthcareanalytics.com/wp-content/uploads/2024/08/hcbutton-3.png"
+                alt="Healthcare Analytics" class="logo-img">
+            <span class="logo-text">Healthcare Analytics</span>
+        </a>
+        <a href="https://healthcareanalytics.com" class="nav-link">Return to Home</a>
+    </nav>
+
+    <div class="container">
+        <div class="disclaimer-box">
+            For Educational Purposes Only. Consult your physician for a formal assessment, diagnosis and treatment.
+        </div>
+
+        <div class="hero">
+            <img src="data:image/png;base64,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"
+                alt="Kayris Logo" style="height: 100px; margin-bottom: 8px;">
+            <div style="font-size: 0.75rem; color: var(--text-muted); opacity: 0.6; margin-bottom: 8px;">Powered by
+                HealthCare Analytics</div>
+            <h1
+                style="font-size: 2.125rem; font-family: var(--font-sans); font-weight: 400; color: var(--text-main); margin: 0 0 48px 0;">
+                Welcome to Kayris&trade;</h1>
+
+            <h2
+                style="font-size: 1.5rem; color: var(--text-muted); font-weight: 500; line-height: 1.6; max-width: 800px; margin: 0 auto; border-bottom: none; font-family: var(--font-sans);">
+                Interactive risk estimation leveraging the 2024 AHA PREVENT&trade;, 2013 ACC/AHA PCE, and ADA Diabetes
+                Risk models.
+            </h2>
+        </div>
+
+        <div class="main-grid">
+            <!-- INPUTS COLUMN -->
+            <div class="column-wrapper">
+                <div class="section-header">Inputs</div>
+                <div class="card">
+                    <h2>Clinical Markers</h2>
+                    <div class="input-group">
+                        <div class="field"><label>Age</label><input type="number" id="s_age" value="45"
+                                oninput="runSandbox()"></div>
+                        <div class="field"><label>Sex</label><select id="s_sex" onchange="runSandbox()">
+                                <option value="male">Male</option>
+                                <option value="female" selected>Female</option>
+                            </select></div>
+                        <div class="field"><label>Weight (lbs)</label><input type="number" id="s_weight" value="160"
+                                oninput="runSandbox()"></div>
+                        <div class="field"><label>Height (ft/in)</label>
+                            <div style="display: flex; gap: 8px;"><input type="number" id="s_hft" value="5"
+                                    style="width:45%" oninput="runSandbox()"><input type="number" id="s_hin" value="6"
+                                    style="width:55%" oninput="runSandbox()"></div>
+                        </div>
+                        <div class="field"><label>Systolic BP</label><input type="number" id="s_sbp" value="130"
+                                oninput="runSandbox()"></div>
+                        <div class="field"><label>Total Chol</label><input type="number" id="s_tc" value="200"
+                                oninput="runSandbox()"></div>
+                        <div class="field"><label>HDL Chol</label><input type="number" id="s_hdl" value="50"
+                                oninput="runSandbox()"></div>
+                        <div class="field"><label>eGFR (Kidney Function / Blood Test)</label><input type="number"
+                                id="s_egfr" value="75" placeholder="Empty for PCE" oninput="runSandbox()"></div>
+                    </div>
+
+                    <h2 style="margin-top: 10px;">History & Lifestyle</h2>
+                    <div class="input-group">
+                        <div class="field"><label>Diagnosed w/ Diabetes</label><select id="s_dm"
+                                onchange="runSandbox()">
+                                <option value="no">No</option>
+                                <option value="yes">Yes</option>
+                            </select></div>
+                        <div class="field"><label>Family History of Diabetes</label><select id="s_fam"
+                                onchange="runSandbox()">
+                                <option value="no">No</option>
+                                <option value="yes">Yes</option>
+                            </select></div>
+                        <div class="field"><label>Current or Former Smoker</label><select id="s_smoke"
+                                onchange="runSandbox()">
+                                <option value="no">No</option>
+                                <option value="yes">Yes</option>
+                            </select></div>
+                        <div class="field"><label>Physically Active (150+ min/wk)</label><select id="s_active"
+                                onchange="runSandbox()">
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select></div>
+                        <div class="field"><label>Treated for High Blood Pressure</label><select id="s_htnt"
+                                onchange="runSandbox()">
+                                <option value="no">No</option>
+                                <option value="yes">Yes</option>
+                            </select></div>
+                        <div class="field"><label>Currently Taking a Statin</label><select id="s_statin"
+                                onchange="runSandbox()">
+                                <option value="no">No</option>
+                                <option value="yes">Yes</option>
+                            </select></div>
+                        <div class="field" id="gdm-field"><label>History of Gestational Diabetes</label><select
+                                id="s_gdm" onchange="runSandbox()">
+                                <option value="no">No</option>
+                                <option value="yes">Yes</option>
+                            </select></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESULTS COLUMN -->
+            <div class="column-wrapper">
+                <div class="section-header">Model Results</div>
+                <div class="card" id="results-card">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px;">
+                        <h2 style="margin-bottom: 0;">Risk Analysis</h2>
+                        <span id="model-badge" class="badge prevent">AHA PREVENT</span>
+                    </div>
+
+                    <div class="comparison-grid" id="comp_grid">
+                        <!-- Headings -->
+                        <div class="outcome-header" id="header_10y">10-Year Risk</div>
+                        <div class="outcome-header" id="header_comp">30-Year Risk</div>
+
+                        <!-- Row 1: Heart Failure (PREVENT ONLY) -->
+                        <div class="result-item ten-year item-prevent" id="card_hf10">
+                            <span class="result-label">Heart Failure</span>
+                            <span class="result-value" id="r_hf10">--</span>
+                        </div>
+                        <div class="result-item comp-col item-prevent" id="card_hf30">
+                            <span class="result-label">Heart Failure</span>
+                            <span class="result-value" id="r_hf30">--</span>
+                        </div>
+
+                        <!-- Row 2: ASCVD (SHARED / PCE featured in PCE mode) -->
+                        <div class="result-item ten-year" id="card_ascvd10">
+                            <span class="result-label" id="label_r1">ASCVD</span>
+                            <span class="result-value" id="r_ascvd10">--</span>
+                            <div id="ascvd_assessment" class="result-assessment"></div>
+                        </div>
+                        <div class="result-item comp-col" id="card_ascvd_comp">
+                            <span class="result-label" id="label_r1_comp">30-Year ASCVD</span>
+                            <span class="result-value" id="r_ascvd_comp">--</span>
+                            <div id="ascvd_comp_assessment" class="result-assessment"></div>
+                        </div>
+
+                        <!-- Row 3: Total CVD (PREVENT ONLY / featured in PREVENT mode) -->
+                        <div class="result-item ten-year item-prevent" id="card_cvd10">
+                            <span class="result-label">Total CVD</span>
+                            <span class="result-value" id="r_cvd10">--</span>
+                            <div id="cvd_assessment" class="result-assessment"></div>
+                        </div>
+                        <div class="result-item comp-col item-prevent" id="card_cvd30">
+                            <span class="result-label">Total CVD</span>
+                            <span class="result-value" id="r_cvd30">--</span>
+                            <div id="cvd30_assessment" class="result-assessment"></div>
+                        </div>
+                    </div>
+
+                    <!-- DIABETES SECTION -->
+                    <div class="dm-section">
+                        <div class="diab-box">
+                            <span class="diab-tag">ADA Diabetes Risk Score</span>
+                            <div class="diab-score-row">
+                                <div class="diab-value" id="r_diab">--</div>
+                                <div class="diab-denom" id="r_diab_max">/ 11</div>
+                            </div>
+                            <div class="diab-assessment" id="diab_eval">--</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- End of main-grid -->
+
+        <!-- ACTION PLAN SECTION -->
+        <div class="action-plan" id="action_plan_section">
+            <div class="action-plan-title">Personalized Action Plan</div>
+            <div id="action_positive_msg"
+                style="display: none; padding: 20px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; color: #166534; font-weight: 500; margin-bottom: 20px;">
+                <!-- Positive reinforcement message goes here -->
+            </div>
+            <div class="action-grid" id="action_grid">
+                <!-- Action cards will be injected here dynamically -->
+            </div>
+        </div>
+
+        <div class="footer">
+
+            <p><strong>Clinical Notice:</strong> Standardized risk probabilities calculated via 2024 AHA PREVENT™ and
+                2013 ACC/AHA PCE equations.</p>
+
+            <p style="margin-top: 15px;"><strong>Modified ADA Diabetes Risk Estimator:</strong> The baseline American
+                Diabetes Association (ADA) screening tool has been modified in this sandbox to incorporate additional
+                cardiometabolic risk factors not originally included in the ADA calculator. Specifically, we have added
+                assessments for <strong>Tobacco Use (Current or Former Smoker)</strong> and <strong>Dyslipidemia (Total
+                    Cholesterol > 200 mg/dL or HDL < 40 mg/dL)</strong>. These factors were integrated based on
+                        well-established clinical research indicating their significant contribution to overall
+                        cardiometabolic and diabetes risk, thereby improving the predictive accuracy of the score for
+                        our population.</p>
+
+            <div class="acronym-list">
+                <div><strong>ADA:</strong> American Diabetes Association</div>
+                <div><strong>AHA:</strong> American Heart Association</div>
+                <div><strong>ACC:</strong> American College of Cardiology</div>
+                <div><strong>ASCVD:</strong> Atherosclerotic Cardiovascular Disease</div>
+                <div><strong>CVD:</strong> Total Cardiovascular Disease</div>
+                <div><strong>HF:</strong> Heart Failure</div>
+                <div><strong>eGFR:</strong> Estimated Glomerular Filtration Rate</div>
+            </div>
+
+            <div class="disclaimer-box" style="margin-top: 40px; margin-bottom: 30px;">
+                For Educational Purposes Only. Consult your physician for a formal assessment, diagnosis and treatment.
+            </div>
+
+            <div class="copyright">
+                &copy; Healthcare Analytics. All rights reserved.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const INTERVENTIONS = {
+            dietHeart: {
+                id: "diet_heart", title: "General Lifestyle & Diet",
+                short: "A heart-healthy diet emphasizes fruits, vegetables, whole grains, and lean proteins.",
+                steps: ["Eat a variety of fruits and vegetables.", "Choose whole grains over refined grains.", "Select healthy proteins: lean meats, poultry, fish, beans, and nuts.", "Use non-tropical vegetable oils (olive, canola, sunflower).", "Limit processed foods, sugar-sweetened beverages, and red meats.", "Limit salt (sodium) intake to lower blood pressure.", "Limit alcohol intake."],
+                url: "https://www.heart.org/en/healthy-living/healthy-eating/eat-smart/nutrition-basics/aha-diet-and-lifestyle-recommendations", source: "American Heart Association"
+            },
+            physicalActivity: {
+                id: "physical_activity", title: "Physical Activity",
+                short: "Regular physical activity is vital for heart health, diabetes prevention, and strengthening the heart muscle.",
+                steps: ["Get at least 150 minutes/week of moderate-intensity aerobic activity.", "OR get 75 minutes/week of vigorous aerobic activity.", "Add moderate- to high-intensity muscle-strengthening activity 2 days/week.", "Spend less time sitting. Even light-intensity activity offsets risks.", "Increase amount and intensity gradually."],
+                url: "https://www.heart.org/en/healthy-living/fitness/fitness-basics/aha-recs-for-physical-activity-in-adults", source: "American Heart Association"
+            },
+            bloodPressure: {
+                id: "blood_pressure", title: "Manage Blood Pressure",
+                short: "Managing blood pressure reduces strain on your heart and is the #1 way to prevent Heart Failure.",
+                steps: ["Eat a heart-healthy diet low in salt (sodium).", "Get regular physical activity to strengthen your heart.", "Maintain a healthy weight to reduce work for your heart.", "Limit alcohol and quit smoking.", "Take your medications exactly as prescribed."],
+                url: "https://www.heart.org/en/health-topics/high-blood-pressure/changes-you-can-make-to-manage-high-blood-pressure", source: "American Heart Association"
+            },
+            quitSmoking: {
+                id: "quit_smoking", title: "Quit Smoking",
+                short: "Quitting smoking is the single most important step for your heart and overall health.",
+                steps: ["Set a quit date within the next 7 days.", "Choose a method: cold turkey, tapering, or meds.", "Talk to your doctor about nicotine replacement therapy.", "Prepare for cravings: they usually last only a few minutes.", "Get support: friends, family, or support groups."],
+                url: "https://smokefree.gov/", source: "Smokefree.gov"
+            },
+            cholesterol: {
+                id: "cholesterol", title: "Manage Cholesterol",
+                short: "Lowering cholesterol prevents plaque buildup in your arteries and reduces stroke risk.",
+                steps: ["Reduce saturated fats (meat/dairy) and eliminate trans fats.", "Eat foods rich in omega-3s (salmon, walnuts).", "Increase soluble fiber (oatmeal, beans, apples).", "If lifestyle changes aren't enough, talk to your doctor about statins."],
+                url: "https://www.heart.org/en/health-topics/cholesterol/prevention-and-treatment-of-high-cholesterol-hyperlipidemia", source: "American Heart Association"
+            },
+            dietDiabetes: {
+                id: "diet_diabetes", title: "Healthy Diet (Diabetes Prevention)",
+                short: "Focus on whole foods to manage blood sugar and prevent long-term heart complications.",
+                steps: ["Choose non-starchy vegetables (leafy greens, peppers).", "Select whole foods over processed foods.", "Minimize added sugars and refined carbs (white bread).", "Watch your portion sizes and eat regular meals.", "Drink water instead of sugary drinks."],
+                url: "https://diabetes.org/healthy-living/recipes-nutrition", source: "American Diabetes Association"
+            },
+            weight: {
+                id: "weight", title: "Manage Weight",
+                short: "Achieving a healthy weight lowers the risk of diabetes and significantly reduces strain on your heart.",
+                steps: ["Set realistic goals (e.g., losing 5-7% of your body weight).", "Track your food intake and physical activity.", "Practice portion control.", "Eat mindfully and slowly.", "Even a modest weight loss can significantly improve heart function."],
+                url: "https://diabetes.org/healthy-living/weight-loss", source: "American Diabetes Association"
+            }
+        };
+
+        const MODELS = {
+            F: {
+                ASCVD_10Y: { c: -3.819975, dm: 0.8348585, smoke: 0.4831078, htnt: 0.2265309, cholM: -0.0592374, ageA: 0.719883, tcD: 0.1176967, hdlD: -0.151185, smin: -0.0835358, smax: 0.3592852, emin: 0.4864619, emax: 0.0397779, htnSmax: -0.0395762, cholD: 0.0844423, ageTcD: -0.0567839, ageHdlD: 0.0325692, ageSmax: -0.1035985, dmAge: -0.2417542, smAge: -0.0791142, ageEmin: -0.1671492 },
+                CVD_10Y: { c: -3.307728, dm: 0.8667604, smoke: 0.5360739, htnt: 0.3151672, cholM: -0.1477655, ageA: 0.7939329, tcD: 0.0305239, hdlD: -0.1606857, smin: -0.2394003, smax: 0.3600781, emin: 0.6045917, emax: 0.0433769, htnSmax: -0.0663612, cholD: 0.1197879, ageTcD: -0.0819715, ageHdlD: 0.0325692, ageSmax: -0.0946348, dmAge: -0.27057, smAge: -0.078715, ageEmin: -0.1637806 },
+                HF_10Y: { c: -4.310409, dm: 1.0, smoke: 0.583916, htnt: 0.3534442, cholM: 0.0, ageA: 0.8998235, tcD: 0.0, hdlD: 0.0, smin: -0.4559771, smax: 0.3576505, emin: 0.7451638, emax: 0.0557087, htnSmax: -0.0981511, cholD: 0.0, ageTcD: 0.0, ageHdlD: 0.0, ageSmax: -0.0946663, dmAge: -0.3581041, smAge: -0.1159453, ageEmin: -0.1884289, bmiMin: -0.0072294, bmiMax: 0.2997706, ageBmiMax: -0.003878 },
+                ASCVD_30Y: { c: -1.974074, dm: 0.6296707, smoke: 0.268292, htnt: 0.1875292, cholM: 0.0152476, ageA: 0.4669202, age2: -0.0893118, tcD: 0.1256901, hdlD: -0.1542255, smin: -0.0018093, smax: 0.322949, emin: 0.100106, emax: 0.0499663, htnSmax: -0.0276123, cholD: 0.0736147, ageTcD: -0.0521962, ageHdlD: 0.0316918, ageSmax: -0.1046101, dmAge: -0.2727793, smAge: -0.1530907, ageEmin: -0.1299149 },
+                CVD_30Y: { c: -1.318827, dm: 0.6793894, smoke: 0.3196112, htnt: 0.2894, cholM: -0.075688, ageA: 0.5503079, age2: -0.0928369, tcD: 0.0409794, hdlD: -0.1663306, smin: -0.1628654, smax: 0.3299505, emin: 0.1857101, emax: 0.0553528, htnSmax: -0.056367, cholD: 0.1071019, ageTcD: -0.0751438, ageHdlD: 0.0301786, ageSmax: -0.0998776, dmAge: -0.3206166, smAge: -0.1607862, ageEmin: -0.1450788 },
+                HF_30Y: { c: -2.205379, dm: 0.8330787, smoke: 0.3438651, htnt: 0.333921, cholM: 0.0, ageA: 0.6254374, age2: -0.0983038, tcD: 0.0, hdlD: 0.0, smin: -0.3919241, smax: 0.3142295, emin: 0.2981642, emax: 0.0667159, htnSmax: -0.0893177, cholD: 0.0, ageTcD: 0.0, ageHdlD: 0.0, ageSmax: -0.0974299, dmAge: -0.404855, smAge: -0.1982991, ageEmin: -0.1564215, bmiMin: 0.0594874, bmiMax: 0.2525536, ageBmiMax: -0.0035619 }
+            },
+            M: {
+                ASCVD_10Y: { c: -3.500655, dm: 0.7189597, smoke: 0.3956973, htnt: 0.2036522, cholM: -0.0865581, ageA: 0.7099847, tcD: 0.1658663, hdlD: -0.1144285, smin: -0.2837212, smax: 0.3239977, emin: 0.3690075, emax: 0.0203619, htnSmax: -0.0322916, cholD: 0.114563, ageTcD: -0.0300005, ageHdlD: 0.0232747, ageSmax: -0.0927024, dmAge: -0.2018525, smAge: -0.0970527, ageEmin: -0.1217081 },
+                CVD_10Y: { c: -3.031168, dm: 0.7692857, smoke: 0.4386871, htnt: 0.288879, cholM: -0.1337349, ageA: 0.7688528, tcD: 0.0736174, hdlD: -0.0954431, smin: -0.4347345, smax: 0.3362658, emin: 0.5378979, emax: 0.0164827, htnSmax: -0.0475924, cholD: 0.150273, ageTcD: -0.0517874, ageHdlD: 0.0191169, ageSmax: -0.1049477, dmAge: -0.2251948, smAge: -0.0895067, ageEmin: -0.1543702 },
+                HF_10Y: { c: -3.946391, dm: 0.923776, smoke: 0.5023736, htnt: 0.2980922, cholM: 0.0, ageA: 0.8972642, tcD: 0.0, hdlD: 0.0, smin: -0.6811466, smax: 0.3634461, emin: 0.6926917, emax: 0.0251827, htnSmax: -0.0497731, cholD: 0.0, ageTcD: 0.0, ageHdlD: 0.0, ageSmax: -0.1289201, dmAge: -0.3040924, smAge: -0.1401688, ageEmin: -0.1797778, bmiMin: -0.0485841, bmiMax: 0.3726929, ageBmiMax: 0.0068126 },
+                ASCVD_30Y: { c: -1.736444, dm: 0.4790257, smoke: 0.1782635, htnt: 0.1421182, cholM: 0.0135996, ageA: 0.3994099, age2: -0.0937484, tcD: 0.1744643, hdlD: -0.120203, smin: -0.0665117, smax: 0.2753037, emin: -0.0218789, emax: 0.0602553, htnSmax: -0.0218265, cholD: 0.1013148, ageTcD: -0.0312619, ageHdlD: 0.020673, ageSmax: -0.0920935, dmAge: -0.2159947, smAge: -0.1548811, ageEmin: -0.0712547 },
+                CVD_30Y: { c: -1.148204, dm: 0.5331276, smoke: 0.2141914, htnt: 0.232714, cholM: -0.0272112, ageA: 0.4627309, age2: -0.0984281, tcD: 0.0836088, hdlD: -0.1029824, smin: -0.2140352, smax: 0.2904325, emin: 0.1155556, emax: 0.0603775, htnSmax: -0.0384488, cholD: 0.134192, ageTcD: -0.0511759, ageHdlD: 0.0165865, ageSmax: -0.1101437, dmAge: -0.2585943, smAge: -0.1566406, ageEmin: -0.1166776 },
+                HF_30Y: { c: -1.95751, dm: 0.6840338, smoke: 0.2656273, htnt: 0.2583631, cholM: 0.0, ageA: 0.5681541, age2: -0.1048388, tcD: 0.0, hdlD: 0.0, smin: -0.4761564, smax: 0.30324, emin: 0.2541805, emax: 0.0638923, htnSmax: -0.0391938, cholD: 0.0, ageTcD: 0.0, ageHdlD: 0.0, ageSmax: -0.1269124, dmAge: -0.3273572, smAge: -0.2043019, ageEmin: -0.1342618, bmiMin: 0.0833107, bmiMax: 0.26999, ageBmiMax: -0.0182831 }
+            }
+        };
+
+        function calculateRisk(model, inp) {
+            const ageAdj = (inp.age - 55) / 10;
+            const ageAdj2 = Math.pow(ageAdj, 2);
+            const sbpMax = (Math.max(inp.sbp, 110) - 130) / 20;
+            const sbpMin = (Math.min(inp.sbp, 110) - 110) / 20;
+            const nonHdl = inp.tc - inp.hdl;
+            const tcDiff = (0.02586 * nonHdl - 3.5);
+            const hdlDiff = (0.02586 * inp.hdl - 1.3) / 0.3;
+            const eMin = (Math.min(inp.egfr, 60) - 60) / -15;
+            const eMax = (Math.max(inp.egfr, 60) - 90) / -15;
+            const h = (inp.hft * 12) + inp.hin;
+            const bmi = (inp.weight / (h * h)) * 703;
+            const bmiAdjMin = (Math.min(bmi, 30.0) - 25.0) / 5.0;
+            const bmiAdjMax = (Math.max(bmi, 30.0) - 30.0) / 5.0;
+
+            let lp = model.c + (model.ageA * ageAdj) + (model.age2 ? model.age2 * ageAdj2 : 0) + (inp.dm ? model.dm : 0) + (inp.smoke ? model.smoke : 0) + (inp.htnt ? model.htnt : 0) + (inp.statin ? model.cholM : 0) + (model.tcD * tcDiff) + (model.hdlD * hdlDiff) + (model.smin * sbpMin) + (model.smax * sbpMax) + (model.emin * eMin) + (model.emax * eMax) + (inp.htnt ? (model.htnSmax || 0) * sbpMax : 0) + (inp.statin ? (model.cholD || 0) * tcDiff : 0) + ((model.ageTcD || 0) * ageAdj * tcDiff) + ((model.ageHdlD || 0) * ageAdj * hdlDiff) + ((model.ageSmax || 0) * ageAdj * sbpMax) + (inp.dm ? (model.dmAge || 0) * ageAdj : 0) + (inp.smoke ? (model.smAge || 0) * ageAdj : 0) + ((model.ageEmin || 0) * ageAdj * eMin) + ((model.bmiMin || 0) * bmiAdjMin) + ((model.bmiMax || 0) * bmiAdjMax) + ((model.ageBmiMax || 0) * ageAdj * bmiAdjMax);
+
+            return (Math.exp(lp) / (1 + Math.exp(lp))) * 100;
+        }
+
+        function calculateLegacyPCE(inp) {
+            const lnAge = Math.log(inp.age);
+            const lnTC = Math.log(inp.tc);
+            const lnHdl = Math.log(inp.hdl);
+            const lnSBP = Math.log(inp.sbp);
+            let sum = (inp.isMale) ? (12.344 * lnAge) + (11.853 * lnTC) - (2.664 * lnAge * lnTC) + (-7.990 * lnHdl) + (1.769 * lnAge * lnHdl) + (inp.htnt ? 1.797 * lnSBP : 1.764 * lnSBP) + (7.837 * (inp.smoke ? 1 : 0)) - (1.795 * lnAge * (inp.smoke ? 1 : 0)) + (0.658 * (inp.dm ? 1 : 0)) : (-29.799 * lnAge) + (4.884 * Math.pow(lnAge, 2)) + (13.540 * lnTC) - (3.114 * lnAge * lnTC) + (-13.578 * lnHdl) + (3.149 * lnAge * lnHdl) + (inp.htnt ? 2.019 * lnSBP : 1.957 * lnSBP) + (7.574 * (inp.smoke ? 1 : 0)) - (1.665 * lnAge * (inp.smoke ? 1 : 0)) + (0.661 * (inp.dm ? 1 : 0));
+            return (1.0 - Math.pow(inp.isMale ? 0.9144 : 0.9665, Math.exp(sum - (inp.isMale ? 61.18 : 86.61)))) * 100;
+        }
+
+        function calculateLifetimeRiskPCE(inp) {
+            let count = 0;
+            if (inp.smoke) count++;
+            if (inp.dm) count++;
+            if (inp.tc >= 240) count++;
+            if (inp.hdl < 40) count++;
+            if (inp.sbp >= 160 || inp.htnt) count++;
+
+            if (count === 0) return 5.0;
+            if (count === 1) return 39.0;
+            return 50.0;
+        }
+
+        function calculateDiab(inp) {
+            let s = 0;
+            if (inp.age >= 60) s += 3; else if (inp.age >= 50) s += 2; else if (inp.age >= 40) s += 1;
+            if (inp.isMale) s += 1; if (inp.fam) s += 1; if (!inp.isMale && inp.gdm) s += 1;
+            if (inp.htnt || inp.sbp >= 140) s += 1; if (!inp.active) s += 1; if (inp.smoke) s += 1;
+            const h = (inp.hft * 12) + inp.hin;
+            const bmi = (inp.weight / (h * h)) * 703;
+            if (bmi >= 30) s += 2; else if (bmi >= 25) s += 1;
+            if (inp.tc > 0 && (inp.tc > 200 || inp.hdl < 40)) s += 1;
+            return s;
+        }
+
+        function getRiskAssessment(risk) {
+            if (risk < 5.0) return { text: "Low Risk", color: "var(--risk-low)" };
+            if (risk < 7.5) return { text: "Borderline", color: "var(--risk-borderline)" };
+            if (risk < 20.0) return { text: "Intermediate", color: "var(--risk-intermediate)" };
+            return { text: "High Risk", color: "var(--risk-high)" };
+        }
+
+        function get30YearAssessment(risk) {
+            if (risk < 10.0) return { text: "Low Risk", color: "var(--risk-low)" };
+            if (risk < 40.0) return { text: "Intermediate", color: "var(--risk-intermediate)" };
+            return { text: "High Risk", color: "var(--risk-high)" };
+        }
+
+        function getLifetimeAssessmentPCE(risk) {
+            if (risk <= 5.0) return { text: "Low Risk", color: "var(--risk-low)" };
+            if (risk < 40.0) return { text: "Intermediate", color: "var(--risk-intermediate)" };
+            return { text: "High Risk", color: "var(--risk-high)" };
+        }
+
+        function runSandbox() {
+            const egfrVal = document.getElementById('s_egfr').value;
+            const inp = {
+                age: parseInt(document.getElementById('s_age').value) || 45,
+                isMale: document.getElementById('s_sex').value === 'male',
+                sbp: parseInt(document.getElementById('s_sbp').value) || 120,
+                tc: parseInt(document.getElementById('s_tc').value) || 200,
+                hdl: parseInt(document.getElementById('s_hdl').value) || 50,
+                egfr: (egfrVal.trim() === "" || isNaN(parseInt(egfrVal))) ? null : parseInt(egfrVal),
+                smoke: document.getElementById('s_smoke').value === 'yes',
+                dm: document.getElementById('s_dm').value === 'yes',
+                htnt: document.getElementById('s_htnt').value === 'yes',
+                statin: document.getElementById('s_statin').value === 'yes',
+                weight: parseInt(document.getElementById('s_weight').value) || 160,
+                hft: parseInt(document.getElementById('s_hft').value) || 5,
+                hin: parseInt(document.getElementById('s_hin').value) || 6,
+                active: document.getElementById('s_active').value === 'yes',
+                fam: document.getElementById('s_fam').value === 'yes',
+                gdm: document.getElementById('s_gdm').value === 'yes'
+            };
+
+            document.getElementById('gdm-field').style.opacity = inp.isMale ? "0.3" : "1";
+            document.getElementById('s_gdm').disabled = inp.isMale;
+
+            const isPrev = inp.egfr !== null;
+            const sex = inp.isMale ? 'M' : 'F';
+            const shows30y = isPrev && inp.age < 60;
+            const showsLifetime = !isPrev;
+            const showsCompCol = shows30y || showsLifetime;
+
+            const b = document.getElementById('model-badge');
+            b.innerText = isPrev ? 'AHA PREVENT' : '2013 PCE';
+            b.className = 'badge ' + (isPrev ? 'prevent' : 'pce');
+
+            // Handle row and column visibility explicitly
+            document.querySelectorAll('.item-prevent').forEach(el => {
+                el.style.display = isPrev ? 'flex' : 'none';
+            });
+
+            document.querySelectorAll('.comp-col').forEach(el => {
+                const isPreventItem = el.classList.contains('item-prevent');
+                if (isPreventItem && !isPrev) {
+                    el.style.display = 'none';
+                } else {
+                    el.style.display = showsCompCol ? 'flex' : 'none';
+                }
+            });
+
+            const headerComp = document.getElementById('header_comp');
+            headerComp.innerText = isPrev ? '30-Year Risk' : 'Lifetime Risk';
+            headerComp.style.display = showsCompCol ? 'block' : 'none';
+            document.getElementById('header_10y').style.display = 'block';
+
+            document.getElementById('comp_grid').style.gridTemplateColumns = showsCompCol ? '1.1fr 0.9fr' : '1fr';
+
+            // Feature swapping
+            const c_ascvd10 = document.getElementById('card_ascvd10');
+            const c_ascvd_comp = document.getElementById('card_ascvd_comp');
+            const c_cvd10 = document.getElementById('card_cvd10');
+            const c_cvd30 = document.getElementById('card_cvd30');
+
+            if (isPrev) {
+                c_ascvd10.classList.remove('featured');
+                c_ascvd_comp.classList.remove('featured');
+                c_cvd10.classList.add('featured');
+                c_cvd30.classList.add('featured');
+            } else {
+                c_ascvd10.classList.add('featured');
+                c_ascvd_comp.classList.add('featured');
+                c_cvd10.classList.remove('featured');
+                c_cvd30.classList.remove('featured');
+            }
+
+            // Calculations
+            document.getElementById('label_r1').innerText = isPrev ? 'ASCVD' : 'ASCVD (PCE)';
+            document.getElementById('label_r1_comp').innerText = isPrev ? '30-Year ASCVD' : 'Lifetime ASCVD';
+
+            let ascvd10 = isPrev ? calculateRisk(MODELS[sex].ASCVD_10Y, inp) : calculateLegacyPCE(inp);
+            document.getElementById('r_ascvd10').innerText = ascvd10.toFixed(1) + '%';
+            const ascvdAssessEl = document.getElementById('ascvd_assessment');
+
+            // Assessment Logic: In PREVENT mode, hide ASCVD assessment to avoid conflict with Total CVD
+            if (isPrev) {
+                ascvdAssessEl.style.display = "none";
+            } else {
+                const assess10 = getRiskAssessment(ascvd10);
+                ascvdAssessEl.innerText = assess10.text; ascvdAssessEl.style.color = assess10.color;
+                ascvdAssessEl.style.display = "block";
+            }
+
+            if (isPrev) {
+                const cvd10 = calculateRisk(MODELS[sex].CVD_10Y, inp);
+                document.getElementById('r_cvd10').innerText = cvd10.toFixed(1) + '%';
+                document.getElementById('r_hf10').innerText = calculateRisk(MODELS[sex].HF_10Y, inp).toFixed(1) + '%';
+                const cvdAssessEl = document.getElementById('cvd_assessment');
+                const assess = getRiskAssessment(cvd10);
+                cvdAssessEl.innerText = assess.text; cvdAssessEl.style.color = assess.color;
+
+                if (shows30y) {
+                    const cvd30 = calculateRisk(MODELS[sex].CVD_30Y, inp);
+                    document.getElementById('r_ascvd_comp').innerText = calculateRisk(MODELS[sex].ASCVD_30Y, inp).toFixed(1) + '%';
+                    document.getElementById('r_cvd30').innerText = cvd30.toFixed(1) + '%';
+                    document.getElementById('r_hf30').innerText = calculateRisk(MODELS[sex].HF_30Y, inp).toFixed(1) + '%';
+
+                    const ascvd30AssessEl = document.getElementById('ascvd_comp_assessment');
+                    ascvd30AssessEl.style.display = 'none'; // No qualitative for 30Y ASCVD per PREVENT spec
+
+                    const cvd30AssessEl = document.getElementById('cvd30_assessment');
+                    const assess30 = get30YearAssessment(cvd30);
+                    cvd30AssessEl.innerText = assess30.text; cvd30AssessEl.style.color = assess30.color;
+                    cvd30AssessEl.style.display = 'block';
+                }
+            } else {
+                // PCE Mode: Lifetime Risk
+                const lifetimeRisk = calculateLifetimeRiskPCE(inp);
+                document.getElementById('r_ascvd_comp').innerText = lifetimeRisk.toFixed(0) + '%';
+                const ascvdLAssessEl = document.getElementById('ascvd_comp_assessment');
+                const assessL = getLifetimeAssessmentPCE(lifetimeRisk);
+                ascvdLAssessEl.innerText = assessL.text; ascvdLAssessEl.style.color = assessL.color;
+                ascvdLAssessEl.style.display = 'block';
+            }
+
+            // Diabetes
+            const diab = calculateDiab(inp);
+            const maxDiab = (inp.tc > 0) ? 11 : 10;
+            document.getElementById('r_diab').innerText = diab;
+            document.getElementById('r_diab_max').innerText = '/ ' + maxDiab;
+            const evalEl = document.getElementById('diab_eval');
+            if (diab >= 8) { evalEl.innerText = "Very High Risk"; evalEl.style.color = "var(--risk-high)"; }
+            else if (diab >= 5) { evalEl.innerText = "High Risk"; evalEl.style.color = "var(--risk-intermediate)"; }
+            else if (diab >= 3) { evalEl.innerText = "Intermediate"; evalEl.style.color = "#3b82f6"; }
+            else { evalEl.innerText = "Low Risk"; evalEl.style.color = "var(--risk-low)"; }
+
+            // Generate Personalized Action Plan
+            generateActionPlan(inp);
+        }
+
+        function generateActionPlan(inp) {
+            const h = (inp.hft * 12) + inp.hin;
+            const bmi = (inp.weight / (h * h)) * 703;
+            const grid = document.getElementById('action_grid');
+            const posMsg = document.getElementById('action_positive_msg');
+            grid.innerHTML = '';
+            posMsg.style.display = 'none';
+
+            let actions = [];
+
+            // 1. Diet
+            actions.push(INTERVENTIONS.dietHeart);
+            if (bmi >= 25 || !inp.active) {
+                // Swap for diabetes-focused diet if overweight or inactive
+                actions[0] = INTERVENTIONS.dietDiabetes;
+            }
+
+            // 2. Physical Activity
+            if (!inp.active) {
+                actions.push(INTERVENTIONS.physicalActivity);
+            }
+
+            // 3. Weight
+            if (bmi >= 25.0) {
+                actions.push(INTERVENTIONS.weight);
+            }
+
+            // 4. Blood Pressure
+            if (inp.htnt || inp.sbp >= 120) {
+                actions.push(INTERVENTIONS.bloodPressure);
+            }
+
+            // 5. Smoking
+            if (inp.smoke) {
+                actions.push(INTERVENTIONS.quitSmoking);
+            }
+
+            // 6. Cholesterol
+            if (inp.tc > 200 || inp.hdl < 40) {
+                actions.push(INTERVENTIONS.cholesterol);
+            }
+
+            // Only diet was added, meaning no other modifiable risks triggered
+            if (actions.length === 1 && inp.active && bmi < 25 && !inp.smoke && !inp.htnt && inp.sbp < 120 && inp.tc <= 200 && inp.hdl >= 40) {
+                posMsg.innerHTML = "You are doing a fantastic job managing your health! Your clinical markers indicate no immediate modifiable risk flags. Continue your excellent healthy habits and lifestyle choices.";
+                posMsg.style.display = 'block';
+                actions = []; // Clear the actions array to prevent rendering the default diet card
+            }
+
+            actions.forEach(act => {
+                const card = document.createElement('div');
+                card.className = 'action-card';
+                let stepsHtml = act.steps.map(s => `<li>${s}</li>`).join('');
+
+                card.innerHTML = `
+                    <h3>${act.title}</h3>
+                    <p>${act.short}</p>
+                    <ul>${stepsHtml}</ul>
+                    <a href="${act.url}" target="_blank" rel="noopener noreferrer" class="action-link">
+                        Read more at ${act.source}
+                        <svg style="margin-left: 4px; width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        window.onload = runSandbox;
+    </script>
+</body>
+
+</html>
