@@ -1093,7 +1093,7 @@
             const lnHdl = Math.log(inp.hdl);
             const lnSBP = Math.log(inp.sbp);
             let sum = (inp.isMale) ? (12.344 * lnAge) + (11.853 * lnTC) - (2.664 * lnAge * lnTC) + (-7.990 * lnHdl) + (1.769 * lnAge * lnHdl) + (inp.htnt ? 1.797 * lnSBP : 1.764 * lnSBP) + (7.837 * (inp.smoke ? 1 : 0)) - (1.795 * lnAge * (inp.smoke ? 1 : 0)) + (0.658 * (inp.dm ? 1 : 0)) : (-29.799 * lnAge) + (4.884 * Math.pow(lnAge, 2)) + (13.540 * lnTC) - (3.114 * lnAge * lnTC) + (-13.578 * lnHdl) + (3.149 * lnAge * lnHdl) + (inp.htnt ? 2.019 * lnSBP : 1.957 * lnSBP) + (7.574 * (inp.smoke ? 1 : 0)) - (1.665 * lnAge * (inp.smoke ? 1 : 0)) + (0.661 * (inp.dm ? 1 : 0));
-            return (1.0 - Math.pow(inp.isMale ? 0.9144 : 0.9665, Math.exp(sum - (inp.isMale ? 61.18 : 86.61)))) * 100;
+            return (1.0 - Math.pow(inp.isMale ? 0.9144 : 0.9665, Math.exp(sum - (inp.isMale ? 61.18 : -29.18)))) * 100;
         }
 
         function calculateLifetimeRiskPCE(inp) {
