@@ -315,6 +315,17 @@
             letter-spacing: 0.5px;
         }
 
+        .calc-note {
+            font-size: 0.75rem;
+            line-height: 1.45;
+            color: #6b7280;
+            margin: 14px 0 6px;
+        }
+
+        .calc-note div + div {
+            margin-top: 4px;
+        }
+
         .featured .result-assessment {
             font-size: 0.8rem;
             margin-top: 4px;
@@ -862,7 +873,7 @@
                                 <option value="no">No</option>
                                 <option value="yes">Yes</option>
                             </select></div>
-                        <div class="field"><label>Current or Former Smoker</label><select id="s_smoke"
+                        <div class="field"><label>Current Smoker</label><select id="s_smoke"
                                 onchange="runSandbox()">
                                 <option value="no">No</option>
                                 <option value="yes">Yes</option>
@@ -940,11 +951,12 @@
                             <div id="cvd30_assessment" class="result-assessment"></div>
                         </div>
                     </div>
+                    <div id="calc_note" class="calc-note"></div>
 
                     <!-- DIABETES SECTION -->
                     <div class="dm-section">
                         <div class="diab-box">
-                            <span class="diab-tag">ADA Diabetes Risk Score</span>
+                            <span class="diab-tag">Modified ADA Diabetes Risk Score</span>
                             <div class="diab-score-row">
                                 <div class="diab-value" id="r_diab">--</div>
                                 <div class="diab-denom" id="r_diab_max">/ 11</div>
@@ -970,17 +982,19 @@
 
         <div class="footer">
 
-            <p><strong>Clinical Notice:</strong> Standardized risk probabilities calculated via 2024 AHA PREVENT™ and
-                2013 ACC/AHA PCE equations.</p>
+            <p><strong>Clinical Notice:</strong> Standardized risk probabilities calculated via the 2024 AHA PREVENT™ equations (Khan SS et al.,
+                Circulation 2024;149:430–449) and the 2013 ACC/AHA Pooled Cohort Equations.</p>
 
-            <p style="margin-top: 15px;"><strong>Modified ADA Diabetes Risk Estimator:</strong> The baseline American
-                Diabetes Association (ADA) screening tool has been modified in this sandbox to incorporate additional
-                cardiometabolic risk factors not originally included in the ADA calculator. Specifically, we have added
-                assessments for <strong>Tobacco Use (Current or Former Smoker)</strong> and <strong>Dyslipidemia (Total
-                    Cholesterol > 200 mg/dL or HDL < 40 mg/dL)</strong>. These factors were integrated based on
-                        well-established clinical research indicating their significant contribution to overall
-                        cardiometabolic and diabetes risk, thereby improving the predictive accuracy of the score for
-                        our population.</p>
+            <p style="margin-top: 15px;"><strong>Modified ADA Diabetes Risk Score:</strong> Modified from the ADA
+                Diabetes Risk Test (Bang H et al., Ann Intern Med 2009;151:775–783). Differences: adds current smoking
+                (+1) and dyslipidemia (+1: total cholesterol &gt; 200 mg/dL or HDL &lt; 40 mg/dL); defines high blood
+                pressure by treatment or systolic BP ≥ 140; caps BMI at 2 points (≥ 30 kg/m²). Categories: low &lt; 5,
+                moderate 5–6, high ≥ 7 points (maximum 11). The modifications have not been independently validated;
+                the published validation applies to the original ADA Diabetes Risk Test.</p>
+
+            <p style="margin-top: 15px;"><strong>Risk categories:</strong> PREVENT 10-year ASCVD risk is categorized
+                per the 2026 ACC/AHA Guideline on the Management of Dyslipidemia; 2013 PCE results per the 2018 AHA/ACC
+                Cholesterol Guideline. Lifetime risk follows Lloyd-Jones DM et al., Circulation 2006;113:791–798.</p>
 
             <div class="acronym-list">
                 <div><strong>ADA:</strong> American Diabetes Association</div>
@@ -1077,8 +1091,7 @@
             const hdlDiff = (0.02586 * inp.hdl - 1.3) / 0.3;
             const eMin = (Math.min(inp.egfr, 60) - 60) / -15;
             const eMax = (Math.max(inp.egfr, 60) - 90) / -15;
-            const h = (inp.hft * 12) + inp.hin;
-            const bmi = (inp.weight / (h * h)) * 703;
+            const bmi = bmiOf(inp) ?? 25.0; // BMI only enters the HF equations, which are not shown without a valid BMI
             const bmiAdjMin = (Math.min(bmi, 30.0) - 25.0) / 5.0;
             const bmiAdjMax = (Math.max(bmi, 30.0) - 30.0) / 5.0;
 
@@ -1096,66 +1109,120 @@
             return (1.0 - Math.pow(inp.isMale ? 0.9144 : 0.9665, Math.exp(sum - (inp.isMale ? 61.18 : -29.18)))) * 100;
         }
 
-        function calculateLifetimeRiskPCE(inp) {
-            let count = 0;
-            if (inp.smoke) count++;
-            if (inp.dm) count++;
-            if (inp.tc >= 240) count++;
-            if (inp.hdl < 40) count++;
-            if (inp.sbp >= 160 || inp.htnt) count++;
-
-            if (count === 0) return 5.0;
-            if (count === 1) return 39.0;
-            return 50.0;
+        // ---- Validity ranges (never clamp; out of range = "Not calculated") ----
+        // PREVENT: Khan SS et al. Circulation 2024;149:430-449. PCE: Goff DC et al. Circulation 2014;129(25 Suppl 2):S49-S73.
+        function preventIssues(inp) {
+            const issues = [];
+            if (inp.age < 30 || inp.age > 79) issues.push('age outside 30–79');
+            if (inp.tc < 130 || inp.tc > 320) issues.push('total cholesterol outside 130–320 mg/dL');
+            if (inp.hdl < 20 || inp.hdl > 100) issues.push('HDL outside 20–100 mg/dL');
+            if (inp.sbp < 90 || inp.sbp > 200) issues.push('systolic BP outside 90–200 mmHg');
+            if (inp.egfr < 15 || inp.egfr > 140) issues.push('eGFR outside 15–140');
+            return issues;
         }
 
+        function pceIssues(inp) {
+            const issues = [];
+            if (inp.age < 40 || inp.age > 79) issues.push('age outside 40–79');
+            if (inp.tc < 130 || inp.tc > 320) issues.push('total cholesterol outside 130–320 mg/dL');
+            if (inp.hdl < 20 || inp.hdl > 100) issues.push('HDL outside 20–100 mg/dL');
+            if (inp.sbp < 90 || inp.sbp > 200) issues.push('systolic BP outside 90–200 mmHg');
+            return issues;
+        }
+
+        function bmiOf(inp) {
+            const h = (inp.hft * 12) + inp.hin;
+            if (!(h > 0) || !(inp.weight > 0)) return null;
+            return Math.round((inp.weight / (h * h)) * 703 * 10) / 10;
+        }
+
+        // ---- Lifetime ASCVD risk (2013 ACC/AHA approach) ----
+        // Lloyd-Jones DM et al. Circulation 2006;113:791-798 (risk to age 95 by risk-factor profile).
+        // Shown for ages 20–59 only, as in the ACC/AHA estimator.
+        function lifetimeProfile(inp) {
+            let major = 0, elevated = false, notOptimal = false;
+            if (inp.smoke) major++;
+            if (inp.dm) major++;
+            if (inp.tc >= 240) major++;
+            if (inp.htnt || inp.sbp >= 160) major++;
+            if (!inp.htnt) {
+                if (inp.sbp >= 140 && inp.sbp < 160) elevated = true;
+                else if (inp.sbp >= 120 && inp.sbp < 140) notOptimal = true;
+            }
+            if (inp.tc >= 200 && inp.tc < 240) elevated = true;
+            else if (inp.tc >= 180 && inp.tc < 200) notOptimal = true;
+
+            const men = { opt: 5, notOpt: 36, elev: 46, one: 50, two: 69 };
+            const women = { opt: 8, notOpt: 27, elev: 39, one: 39, two: 50 };
+            const t = inp.isMale ? men : women;
+            if (major >= 2) return { risk: t.two, label: '2 or more major risk factors' };
+            if (major === 1) return { risk: t.one, label: '1 major risk factor' };
+            if (elevated) return { risk: t.elev, label: '1 or more elevated risk factors' };
+            if (notOptimal) return { risk: t.notOpt, label: '1 or more non-optimal risk factors' };
+            return { risk: t.opt, label: 'All risk factors optimal' };
+        }
+
+        // ---- Diabetes: Modified ADA score (max 11) — same scoring and categories as the Kayris apps ----
         function calculateDiab(inp) {
             let s = 0;
             if (inp.age >= 60) s += 3; else if (inp.age >= 50) s += 2; else if (inp.age >= 40) s += 1;
             if (inp.isMale) s += 1; if (inp.fam) s += 1; if (!inp.isMale && inp.gdm) s += 1;
             if (inp.htnt || inp.sbp >= 140) s += 1; if (!inp.active) s += 1; if (inp.smoke) s += 1;
-            const h = (inp.hft * 12) + inp.hin;
-            const bmi = (inp.weight / (h * h)) * 703;
-            if (bmi >= 30) s += 2; else if (bmi >= 25) s += 1;
-            if (inp.tc > 0 && (inp.tc > 200 || inp.hdl < 40)) s += 1;
+            const h = (inp.hft * 12) + inp.hin; // unrounded BMI, as in the apps' DiabetesRiskCalculator
+            if (h > 0 && inp.weight > 0) {
+                const bmi = (inp.weight / (h * h)) * 703;
+                if (bmi >= 30) s += 2; else if (bmi >= 25) s += 1;
+            }
+            if (inp.tc > 200 || inp.hdl < 40) s += 1;
             return s;
         }
 
-        function getRiskAssessment(risk) {
+        // ---- Risk categories, tied to the model that produced the number ----
+        // PCE 10-yr ASCVD: 2018 AHA/ACC Cholesterol Guideline (Grundy SM et al. Circulation 2019;139:e1082-e1143).
+        function getPceCategory(risk) {
             if (risk < 5.0) return { text: "Low Risk", color: "var(--risk-low)" };
-            if (risk < 7.5) return { text: "Borderline", color: "var(--risk-borderline)" };
-            if (risk < 20.0) return { text: "Intermediate", color: "var(--risk-intermediate)" };
+            if (risk < 7.5) return { text: "Borderline Risk", color: "var(--risk-borderline)" };
+            if (risk < 20.0) return { text: "Intermediate Risk", color: "var(--risk-intermediate)" };
             return { text: "High Risk", color: "var(--risk-high)" };
         }
 
-        function get30YearAssessment(risk) {
-            if (risk < 10.0) return { text: "Low Risk", color: "var(--risk-low)" };
-            if (risk < 40.0) return { text: "Intermediate", color: "var(--risk-intermediate)" };
+        // PREVENT 10-yr ASCVD: 2026 ACC/AHA Dyslipidemia Guideline (JACC/Circulation, March 2026; doi:10.1016/j.jacc.2025.11.016).
+        function getPreventAscvdCategory(risk) {
+            if (risk < 3.0) return { text: "Low Risk", color: "var(--risk-low)" };
+            if (risk < 5.0) return { text: "Borderline Risk", color: "var(--risk-borderline)" };
+            if (risk < 10.0) return { text: "Intermediate Risk", color: "var(--risk-intermediate)" };
             return { text: "High Risk", color: "var(--risk-high)" };
         }
 
-        function getLifetimeAssessmentPCE(risk) {
-            if (risk <= 5.0) return { text: "Low Risk", color: "var(--risk-low)" };
-            if (risk < 40.0) return { text: "Intermediate", color: "var(--risk-intermediate)" };
-            return { text: "High Risk", color: "var(--risk-high)" };
+        function setText(id, text) { document.getElementById(id).innerText = text; }
+        function hideEl(id) { document.getElementById(id).style.display = 'none'; }
+        function showLabel(id, a) {
+            const el = document.getElementById(id);
+            el.innerText = a.text; el.style.color = a.color; el.style.display = 'block';
+        }
+
+        function readNum(id) {
+            const v = document.getElementById(id).value.trim();
+            if (v === '') return null;
+            const n = parseFloat(v);
+            return isNaN(n) ? null : n;
         }
 
         function runSandbox() {
-            const egfrVal = document.getElementById('s_egfr').value;
             const inp = {
-                age: parseInt(document.getElementById('s_age').value) || 45,
+                age: readNum('s_age'),
                 isMale: document.getElementById('s_sex').value === 'male',
-                sbp: parseInt(document.getElementById('s_sbp').value) || 120,
-                tc: parseInt(document.getElementById('s_tc').value) || 200,
-                hdl: parseInt(document.getElementById('s_hdl').value) || 50,
-                egfr: (egfrVal.trim() === "" || isNaN(parseInt(egfrVal))) ? null : parseInt(egfrVal),
+                sbp: readNum('s_sbp'),
+                tc: readNum('s_tc'),
+                hdl: readNum('s_hdl'),
+                egfr: readNum('s_egfr'),
                 smoke: document.getElementById('s_smoke').value === 'yes',
                 dm: document.getElementById('s_dm').value === 'yes',
                 htnt: document.getElementById('s_htnt').value === 'yes',
                 statin: document.getElementById('s_statin').value === 'yes',
-                weight: parseInt(document.getElementById('s_weight').value) || 160,
-                hft: parseInt(document.getElementById('s_hft').value) || 5,
-                hin: parseInt(document.getElementById('s_hin').value) || 6,
+                weight: readNum('s_weight'),
+                hft: readNum('s_hft'),
+                hin: readNum('s_hin') ?? 0,
                 active: document.getElementById('s_active').value === 'yes',
                 fam: document.getElementById('s_fam').value === 'yes',
                 gdm: document.getElementById('s_gdm').value === 'yes'
@@ -1164,122 +1231,124 @@
             document.getElementById('gdm-field').style.opacity = inp.isMale ? "0.3" : "1";
             document.getElementById('s_gdm').disabled = inp.isMale;
 
+            const notes = [];
+            const missing = [];
+            if (inp.age === null) missing.push('age');
+            if (inp.sbp === null) missing.push('systolic BP');
+            if (inp.tc === null) missing.push('total cholesterol');
+            if (inp.hdl === null) missing.push('HDL');
+
             const isPrev = inp.egfr !== null;
             const sex = inp.isMale ? 'M' : 'F';
-            const shows30y = isPrev && inp.age < 60;
-            const showsLifetime = !isPrev;
-            const showsCompCol = shows30y || showsLifetime;
 
             const b = document.getElementById('model-badge');
             b.innerText = isPrev ? 'AHA PREVENT' : '2013 PCE';
             b.className = 'badge ' + (isPrev ? 'prevent' : 'pce');
 
-            // Handle row and column visibility explicitly
+            // Reset all result cells
+            ['r_ascvd10', 'r_ascvd_comp', 'r_cvd10', 'r_cvd30', 'r_hf10', 'r_hf30'].forEach(id => setText(id, '--'));
+            ['ascvd_assessment', 'ascvd_comp_assessment', 'cvd_assessment', 'cvd30_assessment'].forEach(hideEl);
+
+            let shows30y = false, showsLifetime = false;
+
+            if (missing.length > 0) {
+                notes.push('Not calculated: enter ' + missing.join(', ') + '.');
+            } else if (isPrev) {
+                const issues = preventIssues(inp);
+                if (issues.length > 0) {
+                    notes.push('PREVENT not calculated: ' + issues.join('; ') + '.');
+                } else {
+                    shows30y = inp.age <= 59;
+                    const ascvd10 = calculateRisk(MODELS[sex].ASCVD_10Y, inp);
+                    setText('r_ascvd10', ascvd10.toFixed(1) + '%');
+                    showLabel('ascvd_assessment', getPreventAscvdCategory(ascvd10));
+                    setText('r_cvd10', calculateRisk(MODELS[sex].CVD_10Y, inp).toFixed(1) + '%');
+
+                    const bmi = bmiOf(inp);
+                    const hfOk = bmi !== null && bmi >= 18.5 && bmi <= 39.9;
+                    if (hfOk) {
+                        setText('r_hf10', calculateRisk(MODELS[sex].HF_10Y, inp).toFixed(1) + '%');
+                    } else {
+                        setText('r_hf10', 'Not calc.');
+                        notes.push(bmi === null
+                            ? 'Heart failure risk not calculated: enter height and weight.'
+                            : 'Heart failure risk not calculated: BMI ' + bmi.toFixed(1) + ' is outside the PREVENT range 18.5–39.9.');
+                    }
+
+                    if (shows30y) {
+                        setText('r_ascvd_comp', calculateRisk(MODELS[sex].ASCVD_30Y, inp).toFixed(1) + '%');
+                        setText('r_cvd30', calculateRisk(MODELS[sex].CVD_30Y, inp).toFixed(1) + '%');
+                        setText('r_hf30', hfOk ? calculateRisk(MODELS[sex].HF_30Y, inp).toFixed(1) + '%' : 'Not calc.');
+                    } else {
+                        notes.push('30-year PREVENT risk is defined for ages 30–59 only.');
+                    }
+                    notes.push('Risk category applies to 10-year ASCVD risk (2026 ACC/AHA dyslipidemia guideline: low <3%, borderline 3–<5%, intermediate 5–<10%, high ≥10%).');
+                }
+            } else {
+                const issues = pceIssues(inp);
+                if (issues.length > 0) {
+                    notes.push('2013 PCE not calculated: ' + issues.join('; ') + '. Enter eGFR to use PREVENT (ages 30–79).');
+                } else {
+                    const ascvd10 = calculateLegacyPCE(inp);
+                    setText('r_ascvd10', ascvd10.toFixed(1) + '%');
+                    showLabel('ascvd_assessment', getPceCategory(ascvd10));
+                    notes.push('PCE risk category per the 2018 AHA/ACC cholesterol guideline (low <5%, borderline 5–<7.5%, intermediate 7.5–<20%, high ≥20%).');
+                }
+                if (inp.age >= 20 && inp.age <= 59) {
+                    showsLifetime = true;
+                    const lt = lifetimeProfile(inp);
+                    setText('r_ascvd_comp', lt.risk + '%');
+                    showLabel('ascvd_comp_assessment', { text: lt.label, color: 'var(--text-muted, #6b7280)' });
+                    notes.push('Lifetime risk (to age 95) by risk-factor profile, from Lloyd-Jones et al., Circulation 2006; shown for ages 20–59.');
+                }
+            }
+
+            const showsCompCol = shows30y || showsLifetime;
+
             document.querySelectorAll('.item-prevent').forEach(el => {
                 el.style.display = isPrev ? 'flex' : 'none';
             });
-
             document.querySelectorAll('.comp-col').forEach(el => {
                 const isPreventItem = el.classList.contains('item-prevent');
-                if (isPreventItem && !isPrev) {
-                    el.style.display = 'none';
-                } else {
-                    el.style.display = showsCompCol ? 'flex' : 'none';
-                }
+                if (isPreventItem && !isPrev) el.style.display = 'none';
+                else el.style.display = showsCompCol ? 'flex' : 'none';
             });
 
             const headerComp = document.getElementById('header_comp');
             headerComp.innerText = isPrev ? '30-Year Risk' : 'Lifetime Risk';
             headerComp.style.display = showsCompCol ? 'block' : 'none';
-            document.getElementById('header_10y').style.display = 'block';
-
             document.getElementById('comp_grid').style.gridTemplateColumns = showsCompCol ? '1.1fr 0.9fr' : '1fr';
 
-            // Feature swapping
-            const c_ascvd10 = document.getElementById('card_ascvd10');
-            const c_ascvd_comp = document.getElementById('card_ascvd_comp');
-            const c_cvd10 = document.getElementById('card_cvd10');
-            const c_cvd30 = document.getElementById('card_cvd30');
+            // In both modes the ASCVD row carries the guideline category
+            document.getElementById('card_ascvd10').classList.add('featured');
+            document.getElementById('card_ascvd_comp').classList.add('featured');
+            document.getElementById('card_cvd10').classList.remove('featured');
+            document.getElementById('card_cvd30').classList.remove('featured');
 
-            if (isPrev) {
-                c_ascvd10.classList.remove('featured');
-                c_ascvd_comp.classList.remove('featured');
-                c_cvd10.classList.add('featured');
-                c_cvd30.classList.add('featured');
-            } else {
-                c_ascvd10.classList.add('featured');
-                c_ascvd_comp.classList.add('featured');
-                c_cvd10.classList.remove('featured');
-                c_cvd30.classList.remove('featured');
-            }
+            setText('label_r1', isPrev ? 'ASCVD' : 'ASCVD (PCE)');
+            setText('label_r1_comp', isPrev ? '30-Year ASCVD' : 'Lifetime ASCVD');
 
-            // Calculations
-            document.getElementById('label_r1').innerText = isPrev ? 'ASCVD' : 'ASCVD (PCE)';
-            document.getElementById('label_r1_comp').innerText = isPrev ? '30-Year ASCVD' : 'Lifetime ASCVD';
+            document.getElementById('calc_note').innerHTML = notes.map(n => '<div>' + n + '</div>').join('');
 
-            let ascvd10 = isPrev ? calculateRisk(MODELS[sex].ASCVD_10Y, inp) : calculateLegacyPCE(inp);
-            document.getElementById('r_ascvd10').innerText = ascvd10.toFixed(1) + '%';
-            const ascvdAssessEl = document.getElementById('ascvd_assessment');
-
-            // Assessment Logic: In PREVENT mode, hide ASCVD assessment to avoid conflict with Total CVD
-            if (isPrev) {
-                ascvdAssessEl.style.display = "none";
-            } else {
-                const assess10 = getRiskAssessment(ascvd10);
-                ascvdAssessEl.innerText = assess10.text; ascvdAssessEl.style.color = assess10.color;
-                ascvdAssessEl.style.display = "block";
-            }
-
-            if (isPrev) {
-                const cvd10 = calculateRisk(MODELS[sex].CVD_10Y, inp);
-                document.getElementById('r_cvd10').innerText = cvd10.toFixed(1) + '%';
-                document.getElementById('r_hf10').innerText = calculateRisk(MODELS[sex].HF_10Y, inp).toFixed(1) + '%';
-                const cvdAssessEl = document.getElementById('cvd_assessment');
-                const assess = getRiskAssessment(cvd10);
-                cvdAssessEl.innerText = assess.text; cvdAssessEl.style.color = assess.color;
-
-                if (shows30y) {
-                    const cvd30 = calculateRisk(MODELS[sex].CVD_30Y, inp);
-                    document.getElementById('r_ascvd_comp').innerText = calculateRisk(MODELS[sex].ASCVD_30Y, inp).toFixed(1) + '%';
-                    document.getElementById('r_cvd30').innerText = cvd30.toFixed(1) + '%';
-                    document.getElementById('r_hf30').innerText = calculateRisk(MODELS[sex].HF_30Y, inp).toFixed(1) + '%';
-
-                    const ascvd30AssessEl = document.getElementById('ascvd_comp_assessment');
-                    ascvd30AssessEl.style.display = 'none'; // No qualitative for 30Y ASCVD per PREVENT spec
-
-                    const cvd30AssessEl = document.getElementById('cvd30_assessment');
-                    const assess30 = get30YearAssessment(cvd30);
-                    cvd30AssessEl.innerText = assess30.text; cvd30AssessEl.style.color = assess30.color;
-                    cvd30AssessEl.style.display = 'block';
-                }
-            } else {
-                // PCE Mode: Lifetime Risk
-                const lifetimeRisk = calculateLifetimeRiskPCE(inp);
-                document.getElementById('r_ascvd_comp').innerText = lifetimeRisk.toFixed(0) + '%';
-                const ascvdLAssessEl = document.getElementById('ascvd_comp_assessment');
-                const assessL = getLifetimeAssessmentPCE(lifetimeRisk);
-                ascvdLAssessEl.innerText = assessL.text; ascvdLAssessEl.style.color = assessL.color;
-                ascvdLAssessEl.style.display = 'block';
-            }
-
-            // Diabetes
-            const diab = calculateDiab(inp);
-            const maxDiab = (inp.tc > 0) ? 11 : 10;
-            document.getElementById('r_diab').innerText = diab;
-            document.getElementById('r_diab_max').innerText = '/ ' + maxDiab;
+            // Diabetes (Modified ADA)
             const evalEl = document.getElementById('diab_eval');
-            if (diab >= 8) { evalEl.innerText = "Very High Risk"; evalEl.style.color = "var(--risk-high)"; }
-            else if (diab >= 5) { evalEl.innerText = "High Risk"; evalEl.style.color = "var(--risk-intermediate)"; }
-            else if (diab >= 3) { evalEl.innerText = "Intermediate"; evalEl.style.color = "#3b82f6"; }
-            else { evalEl.innerText = "Low Risk"; evalEl.style.color = "var(--risk-low)"; }
+            if (inp.age === null || inp.tc === null || inp.hdl === null || inp.sbp === null) {
+                setText('r_diab', '--');
+                evalEl.innerText = 'Enter all values'; evalEl.style.color = 'var(--risk-low)';
+            } else {
+                const diab = calculateDiab(inp);
+                setText('r_diab', diab);
+                setText('r_diab_max', '/ 11');
+                if (diab >= 7) { evalEl.innerText = "High Risk"; evalEl.style.color = "var(--risk-high)"; }
+                else if (diab >= 5) { evalEl.innerText = "Moderate Risk"; evalEl.style.color = "var(--risk-intermediate)"; }
+                else { evalEl.innerText = "Low Risk"; evalEl.style.color = "var(--risk-low)"; }
+            }
 
-            // Generate Personalized Action Plan
-            generateActionPlan(inp);
+            if (missing.length === 0) generateActionPlan(inp);
         }
 
         function generateActionPlan(inp) {
-            const h = (inp.hft * 12) + inp.hin;
-            const bmi = (inp.weight / (h * h)) * 703;
+            const bmi = bmiOf(inp) ?? 0;
             const grid = document.getElementById('action_grid');
             const posMsg = document.getElementById('action_positive_msg');
             grid.innerHTML = '';
